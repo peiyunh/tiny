@@ -1,0 +1,3 @@
+[submodule "matconvnet"]
+	path = matconvnet
+	url = git@github.com:peiyunh/matconvnet.git
