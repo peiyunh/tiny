@@ -10,10 +10,10 @@ We provide a demo script to run our detector on an input image and visualize the
 
 ## Training
 
-#### Extra setup for training:
+### Extra setup for training:
 Download WIDER FACE dataset and place its data and annotations under data/widerface/, following such structure: 
 - data/widerface/wider_face_train.mat (annotations for training set)
 - data/widerface/WIDER_train (images for training set)
 
-#### Training
+### Training code
 Coming soon.
