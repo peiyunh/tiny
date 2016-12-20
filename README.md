@@ -3,7 +3,7 @@ By [Peiyun Hu](https://cs.cmu.edu/~peiyunh), [Deva Ramanan](https://cs.cmu.edu/~
 
 
 ## Setup: 
-Download and compile Matconvnet as a submodule. Make sure it passes all test cases after compilation. Feel free to refer to my compilation code as in `matconvnet/compile.m`. 
+Download and compile [my fork of Matconvnet](https://github.com/peiyunh/matconvnet/tree/9822ec97f35cf5a56ae22707cc1c04e0d738e7db) as a submodule. Make sure it passes all test cases after compilation. Feel free to refer to my compilation code as in `matconvnet/compile.m`. 
 
 ## Demo
 We provide a demo script to run our detector on an input image and visualize the detections, as in `minimal_demo.m`. By default, this script takes images under `demo/data` and outputs detections to `demo/visual`. 
