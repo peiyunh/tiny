@@ -1,4 +1,4 @@
-# Finding Tiny Faces
+# [Finding Tiny Faces](https://arxiv.org/abs/1612.04402)
 By [Peiyun Hu](https://cs.cmu.edu/~peiyunh), [Deva Ramanan](https://cs.cmu.edu/~deva)
 
 
