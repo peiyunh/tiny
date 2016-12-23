@@ -21,7 +21,7 @@ end
 use_gpu = true;
 
 % setup testing threshold
-thresh = 0.2;
+thresh = 0.5;
 nmsthresh = 0.1;
 
 % loadng pretrained model (and some final touches) 
@@ -100,12 +100,11 @@ for f = dir('demo/data/*')'
 
         % filter out bounding boxes cross boundary 
         x1 = cx - cw/2; y1 = cy - ch/2;
-        x2 = cx + cw/2; y2 = cy + ch/2; 
-        valid = find(x1 > 0 & y1 > 0 & x2 <= img_w & y2 <= img_h);
-        idx = idx(valid);
-        cy = cy(valid); cx = cx(valid); ch = ch(valid); cw = cw(valid);
-        x1 = x1(valid); y1 = y1(valid); x2 = x2(valid); y2 = y2(valid);
-        fc = fc(valid);
+        x2 = cx + cw/2; y2 = cy + ch/2;
+        x1 = max(1, min(x1, img_w));
+        y1 = max(1, min(y1, img_h));
+        x2 = max(1, min(x2, img_w));
+        y2 = max(1, min(y2, img_h));
 
         % extract bounding box refinement
         Nt = size(clusters, 1); 
