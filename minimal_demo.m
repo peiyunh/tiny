@@ -60,7 +60,9 @@ for f = dir('demo/data/*')'
     [raw_h, raw_w, ~] = size(raw_img) ;
     min_scale = min(floor(log2(max(clusters_w/raw_w))),...
                     floor(log2(max(clusters_h/raw_h))));
-    max_scale = min(1, max(0, -log2(max(raw_h, raw_w)/5000))); 
+    % <=1: avoid too much artifacts due to interpolation
+    % 5000: in case run out of memory 
+    max_scale = min(1, -log2(max(raw_h, raw_w)/5000))); 
     scales = min_scale:1:max_scale;
 
     % initialize variables that store bounding boxes
