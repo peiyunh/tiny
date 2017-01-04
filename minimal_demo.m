@@ -38,10 +38,12 @@ net.addLayer('prob_cls', dagnn.Sigmoid(), 'score_cls', 'prob_cls');
 averageImage = reshape(net.meta.normalization.averageImage,1,1,3);
 
 % reference boxes of templates
-clusters = net.meta.clusters; 
+clusters = net.meta.clusters;
+clusters_h = clusters(:,4) - clusters(:,2) + 1;
+clusters_w = clusters(:,3) - clusters(:,1) + 1;
 
 % by default, we look at three resolutions (.5X, 1X, 2X)
-scales = [-1 0 1];
+%scales = [-1 0 1]; % update: adapt to image resolution (see below)
 
 % run through all images under demo/data
 files = dir('demo/data/*');
@@ -50,24 +52,25 @@ for f = dir('demo/data/*')'
         continue;
     end
     % load input
-    img = imread(fullfile('demo/data', f.name));
+    raw_img = imread(fullfile('demo/data', f.name));
     [~,name,~] = fileparts(f.name);
-    img = single(img);
+    raw_img = single(raw_img);
+
+    % 
+    [raw_h, raw_w, ~] = size(raw_img) ;
+    min_scale = min(floor(log2(max(clusters_w/raw_w))),...
+                    floor(log2(max(clusters_h/raw_h))));
+    max_scale = min(1, max(0, -log2(max(raw_h, raw_w)/5000))); 
+    scales = min_scale:1:max_scale;
 
     % initialize variables that store bounding boxes
     reg_bbox = [];
-    raw_bbox = [];
     for s = 2.^scales
-        img_ = imresize(img, s, 'bilinear');
-        img_ = bsxfun(@minus, img_, averageImage);
+        img = imresize(raw_img, s, 'bilinear');
+        img = bsxfun(@minus, img, averageImage);
 
         if strcmp(net.device, 'gpu')
-            img_ = gpuArray(img_);
-        end
-
-        % in case it goes beyond memory limit (12GB)
-        if size(img_, 1) > 10000 || size(img_, 2) > 10000
-            continue;
+            img = gpuArray(img);
         end
 
         % we don't run every template on every scale
@@ -79,8 +82,8 @@ for f = dir('demo/data/*')'
         ignoredTids = setdiff(1:size(clusters,1), tids);
 
         % run through the net
-        [img_h, img_w, ~] = size(img_);
-        inputs = {'data', img_};
+        [img_h, img_w, ~] = size(img);
+        inputs = {'data', img};
         net.eval(inputs);
 
         % collect scores 
@@ -123,23 +126,19 @@ for f = dir('demo/data/*')'
 
         %
         scores = score_cls(idx);
-        tmp_raw_bbox = [cx-cw/2, cy-ch/2, cx+cw/2, cy+ch/2];
         tmp_reg_bbox = [rcx-rcw/2, rcy-rch/2, rcx+rcw/2, rcy+rch/2];
 
-        tmp_raw_bbox = horzcat(tmp_raw_bbox ./ s, fc, scores);
         tmp_reg_bbox = horzcat(tmp_reg_bbox ./ s, fc, scores);
 
-        raw_bbox = vertcat(raw_bbox, tmp_raw_bbox);
         reg_bbox = vertcat(reg_bbox, tmp_reg_bbox);
     end
 
     % nms 
     ridx = nms(reg_bbox(:,[1:4 end]), nmsthresh); 
     reg_bbox = reg_bbox(ridx,:);
-    raw_bbox = raw_bbox(ridx,:);
 
     % visualize results (faces shorter than 10px are not shown)
-    visualize_detection(uint8(img), reg_bbox, thresh);
+    visualize_detection(uint8(raw_img), reg_bbox, thresh);
 
     % (optional) export figure 
     export_fig('-dpng', '-native', '-opengl', '-transparent', fullfile('demo/visual', [name '.png']));
