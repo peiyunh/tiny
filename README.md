@@ -4,7 +4,7 @@ By [Peiyun Hu](https://cs.cmu.edu/~peiyunh), [Deva Ramanan](https://cs.cmu.edu/~
 ## Demo
 We provide a demo script to run our detector on an input image and visualize the detections, as in `minimal_demo.m`. By default, this script takes images under `demo/data` and outputs detections to `demo/visual`. 
 
-### Preview 
+### Preview
 ![Demo result](https://raw.githubusercontent.com/peiyunh/tiny/master/demo/visual/selfie.png)
 
 ## Setup: 
