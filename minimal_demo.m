@@ -18,7 +18,7 @@ if ~exist(model_path)
 end
 
 % use gpu or not (make sure you have matconvnet compiled with gpu)
-use_gpu = true;
+gpu_id = 4;
 
 % setup testing threshold
 thresh = 0.5;
@@ -27,7 +27,8 @@ nmsthresh = 0.1;
 % loadng pretrained model (and some final touches) 
 net = load(model_path);
 net = dagnn.DagNN.loadobj(net.net);
-if use_gpu
+if gpu_id > 0 % for matconvnet it starts with 1 
+    gpuDevice(gpu_id);
     net.move('gpu');
 end
 net.layers(net.getLayerIndex('score4')).block.crop = [1,2,1,2];
@@ -62,7 +63,7 @@ for f = dir('demo/data/*')'
                     floor(log2(max(clusters_h/raw_h))));
     % <=1: avoid too much artifacts due to interpolation
     % 5000: in case run out of memory 
-    max_scale = min(1, -log2(max(raw_h, raw_w)/5000))); 
+    max_scale = min(1, -log2(max(raw_h, raw_w)/5000));
     scales = min_scale:1:max_scale;
 
     % initialize variables that store bounding boxes
