@@ -1,6 +1,7 @@
 # [Finding Tiny Faces](https://arxiv.org/abs/1612.04402)
 By [Peiyun Hu](https://cs.cmu.edu/~peiyunh), [Deva Ramanan](https://cs.cmu.edu/~deva)
 
+![Demo result](https://raw.githubusercontent.com/peiyunh/tiny/master/demo/visual/selfie.png)
 
 ## Setup: 
 
