@@ -18,10 +18,10 @@ if ~exist(model_path)
 end
 
 % use gpu or not (make sure you have matconvnet compiled with gpu)
-gpu_id = 4;
+gpu_id = 2;
 
 % setup testing threshold
-thresh = 0.5;
+thresh = 0.1;
 nmsthresh = 0.1;
 
 % loadng pretrained model (and some final touches) 
@@ -53,8 +53,11 @@ for f = dir('demo/data/*')'
         continue;
     end
     % load input
+    [~,name,ext] = fileparts(f.name);
+    if ~strcmp(lower(ext), '.jpg') && ~strcmp(lower(ext), '.png')
+        continue;
+    end
     raw_img = imread(fullfile('demo/data', f.name));
-    [~,name,~] = fileparts(f.name);
     raw_img = single(raw_img);
 
     % 
@@ -64,7 +67,9 @@ for f = dir('demo/data/*')'
     % <=1: avoid too much artifacts due to interpolation
     % 5000: in case run out of memory 
     max_scale = min(1, -log2(max(raw_h, raw_w)/5000));
-    scales = min_scale:1:max_scale;
+    scales = min_scale:.5:max_scale;
+    %2.^scales .* raw_h
+    %2.^scales .* raw_w
 
     % initialize variables that store bounding boxes
     reg_bbox = [];
@@ -93,7 +98,8 @@ for f = dir('demo/data/*')'
         score_cls = gather(net.vars(net.getVarIndex('score_cls')).value);
         score_reg = gather(net.vars(net.getVarIndex('score_reg')).value);
         prob_cls = gather(net.vars(net.getVarIndex('prob_cls')).value);
-        prob_cls(:,:,ignoredTids) = 0;
+        %prob_cls(:,:,ignoredTids) = 0;
+        %max(prob_cls(:))
 
         % threshold for detection
         idx = find(prob_cls > thresh);
@@ -105,13 +111,13 @@ for f = dir('demo/data/*')'
         cw = clusters(fc,3) - clusters(fc,1) + 1;
 
         % filter out bounding boxes cross boundary 
-        x1 = cx - cw/2; y1 = cy - ch/2;
-        x2 = cx + cw/2; y2 = cy + ch/2;
-        x1 = max(1, min(x1, img_w));
-        y1 = max(1, min(y1, img_h));
-        x2 = max(1, min(x2, img_w));
-        y2 = max(1, min(y2, img_h));
-
+        %x1 = cx - cw/2; y1 = cy - ch/2;
+        %x2 = cx + cw/2; y2 = cy + ch/2;
+        %x1 = max(1, min(x1, img_w));
+        %y1 = max(1, min(y1, img_h));
+        %x2 = max(1, min(x2, img_w));
+        %y2 = max(1, min(y2, img_h));
+        
         % extract bounding box refinement
         Nt = size(clusters, 1); 
         tx = score_reg(:,:,1:Nt); 
@@ -139,6 +145,10 @@ for f = dir('demo/data/*')'
     % nms 
     ridx = nms(reg_bbox(:,[1:4 end]), nmsthresh); 
     reg_bbox = reg_bbox(ridx,:);
+
+    %
+    reg_bbox(:,[2 4]) = max(1, min(raw_h, reg_bbox(:,[2 4])));
+    reg_bbox(:,[1 3]) = max(1, min(raw_w, reg_bbox(:,[1 3])));
 
     % visualize results (faces shorter than 10px are not shown)
     visualize_detection(uint8(raw_img), reg_bbox, thresh);
