@@ -42,6 +42,7 @@ averageImage = reshape(net.meta.normalization.averageImage,1,1,3);
 clusters = net.meta.clusters;
 clusters_h = clusters(:,4) - clusters(:,2) + 1;
 clusters_w = clusters(:,3) - clusters(:,1) + 1;
+normal_idx = find(clusters(:,5) == 1);
 
 % by default, we look at three resolutions (.5X, 1X, 2X)
 %scales = [-1 0 1]; % update: adapt to image resolution (see below)
@@ -62,8 +63,8 @@ for f = dir('demo/data/*')'
 
     % 
     [raw_h, raw_w, ~] = size(raw_img) ;
-    min_scale = min(floor(log2(max(clusters_w/raw_w))),...
-                    floor(log2(max(clusters_h/raw_h))));
+    min_scale = min(floor(log2(max(clusters_w(normal_idx)/raw_w))),...
+                    floor(log2(max(clusters_h(normal_idx)/raw_h))));
     % <=1: avoid too much artifacts due to interpolation
     % 5000: in case run out of memory 
     max_scale = min(1, -log2(max(raw_h, raw_w)/5000));
