@@ -99,7 +99,7 @@ for f = dir('demo/data/*')'
         score_cls = gather(net.vars(net.getVarIndex('score_cls')).value);
         score_reg = gather(net.vars(net.getVarIndex('score_reg')).value);
         prob_cls = gather(net.vars(net.getVarIndex('prob_cls')).value);
-        %prob_cls(:,:,ignoredTids) = 0;
+        prob_cls(:,:,ignoredTids) = 0;
         %max(prob_cls(:))
 
         % threshold for detection
