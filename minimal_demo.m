@@ -21,7 +21,7 @@ end
 gpu_id = 2;
 
 % setup testing threshold
-thresh = 0.1;
+thresh = 0.5;
 nmsthresh = 0.1;
 
 % loadng pretrained model (and some final touches) 
