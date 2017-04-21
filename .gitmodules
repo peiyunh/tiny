@@ -1,6 +1,6 @@
 [submodule "matconvnet"]
 	path = matconvnet
-	url = git@github.com:peiyunh/matconvnet.git
+        url = https://github.com/peiyunh/matconvnet.git
 [submodule "toolbox/export_fig"]
 	path = toolbox/export_fig
 	url = https://github.com/altmany/export_fig.git
