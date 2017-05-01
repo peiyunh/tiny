@@ -14,7 +14,7 @@ Clone this project with the `--recursive` option so that you have [my fork of Ma
 
 ## Training
 
-### Extra setup for training:
+### Additional setup for training:
 Download [WIDER FACE](http://mmlab.ie.cuhk.edu.hk/projects/WIDERFace/) and place its data and annotations under `data/widerface`, following such structure: 
 - `data/widerface/wider_face_train.mat` (annotations for training set)
 - `data/widerface/WIDER_train` (images for training set)

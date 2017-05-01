@@ -1,10 +1,9 @@
 % Hardmine: basically don't sample negatives here, instead handle
 % sampling in the loss layer based on the loss 
-function [images, clsmaps, regmaps] = cnn_get_batch_logistic_crop_randbest_trires_limit30_hardmine( ...
+function [images, clsmaps, regmaps] = cnn_get_batch_hardmine( ...
     imagePaths, imageSizes, labelRects, varargin)
 % CNN_IMAGENET_GET_BATCH  Load, preprocess, and pack images for CNN evaluation
 
-opts.multiRes = false;
 opts.inputSize = [227, 227] ;
 opts.border = [29, 29] ;
 opts.keepAspect = true ;
@@ -29,19 +28,8 @@ opts.sampleSize = 64;
 opts.posFraction = 0.5;
 opts = vl_argparse(opts, varargin);
 
-% randomly pick scale (so is varsizes)
-if opts.multiRes
-    si = randi(3) ; 
-    %inputSize = round(opts.inputSize * (sqrt(2))^(si-2));
-    % NOTE new settings with resnet 
-    inputSize = round(opts.inputSize * 2^(si-2));
-    opts.varsizes = opts.varsizes{si};
-    if 1
-        fprintf(' scale: %04dx%04d ', inputSize);
-    end
-else
-    inputSize = opts.inputSize;
-end
+%% 
+inputSize = opts.inputSize;
 
 % fetch is true if images is a list of filenames (instead of
 % a cell array of images)

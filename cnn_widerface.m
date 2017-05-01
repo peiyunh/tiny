@@ -3,10 +3,7 @@ startup;
 
 opts.clusterNoResize = false; 
 opts.keepDilatedZeros = false;
-opts.multiRes = false; 
-opts.extraInputPad = true; 
 opts.inputSize = [500, 500];
-opts.noContext = false;
 opts.learningRate = 1e-4;
 
 %% use customized training function ie. adam
@@ -34,10 +31,6 @@ opts.batchNormalization = true ;
 opts.weightInitMethod = 'gaussian' ;
 [opts, varargin] = vl_argparse(opts, varargin) ;
 
-if opts.extraInputPad && any(opts.inputSize==698)
-    error('Check if input padding is correct');
-end
-
 opts.minClusterSize = [2, 2]; 
 opts.maxClusterSize = opts.inputSize;
 [opts, varargin] = vl_argparse(opts, varargin) ;
@@ -51,17 +44,10 @@ sfx = [sfx '-' 'posfrac' num2str(opts.posFraction)] ;
 sfx = [sfx '-' 'N' num2str(opts.clusterNum)];
 if opts.bboxReg, sfx = [sfx '-' 'bboxreg']; end
 if opts.lossType, sfx = [sfx '-' opts.lossType]; end
-if opts.noContext, sfx = [sfx '-' 'nocontext']; end
 
 if any(opts.inputSize~=500), 
     sz = opts.inputSize;
     sfx = [sfx '-input' num2str(sz(1)) 'x' num2str(sz(2))]; 
-end
-if ~opts.extraInputPad, 
-    sfx = [sfx '-' 'noextrapad']; 
-end
-if opts.multiRes 
-    sfx = [sfx '-' 'multires'];
 end
 if ~isempty(opts.clusterName)
     sfx = [sfx '-' 'cluster-' opts.clusterName]; 
@@ -110,7 +96,6 @@ if ~isempty(opts.pretrainModelPath)
     net = cnn_load_pretrain(net, opts.pretrainModelPath);
 end
 
-net.meta.multiRes = opts.multiRes;
 net.meta.inputSize = opts.inputSize;
 net.meta.normalization.inputSize = opts.inputSize;
 net.meta.normalization.border = opts.border;
@@ -194,55 +179,8 @@ net.meta.clusters = clusters;
 
 %% add predictors/losses
 switch opts.modelType
-  case 'vgg-16-simple'
-    net = cnn_add_loss_fcn8s_vgg16_simple(opts, net);
-  case 'vgg-16-padconv1-simple'
-    net = cnn_add_loss_fcn8s_vgg16_padconv1_simple(opts, net);
   case 'resnet-101-simple'
     net = cnn_add_loss_fcn8s_resnet101_simple(opts, net);
-  case 'resnet-101-simple-strided-res2cx'
-    net = cnn_add_loss_fcn8s_resnet101_simple_strided_res2cx(opts, net);
-  case 'resnet-101-simple-shared-predictor'
-    net = cnn_add_loss_fcn8s_resnet101_simple_shared_predictor(opts, net);
-  case 'resnet-101-simple-shared-predictor-regonly'
-    net = cnn_add_loss_fcn8s_resnet101_simple_shared_predictor_regonly(opts, net);
-  case 'resnet-50-simple-res3dx-singlescale'
-    net = cnn_add_loss_fcn8s_resnet50_simple_res3dx_singlescale(opts, net);
-  case 'resnet-50-simple-singlescale'
-    net = cnn_add_loss_fcn8s_resnet50_simple_singlescale(opts, net);
-  case 'resnet-50-simple-strided-res2cx-largeres4'
-    net = cnn_add_loss_fcn8s_resnet50_simple_strided_res2cx_largeres4(opts, net);
-  case 'resnet-50-simple-strided-res2cx'
-    net = cnn_add_loss_fcn8s_resnet50_simple_strided_res2cx(opts, net);
-  case 'resnet-50-simple-res2cx'
-    net = cnn_add_loss_fcn8s_resnet50_simple_res2cx(opts, net);
-  case 'resnet-50-simple'
-    net = cnn_add_loss_fcn8s_resnet50_simple(opts, net);
-  case 'resnet-50-simple-res5cx'
-    net = cnn_add_loss_fcn8s_resnet50_simple_res5cx(opts, net);
-  case 'resnet-50-simple-res5cx-strided-res2cx'
-    net = cnn_add_loss_fcn8s_resnet50_simple_res5cx_strided_res2cx(opts, net);
-  case 'resnet-50-dilated'
-    net = cnn_add_loss_fcn8s_resnet50_dilated(opts, net);
-  case 'resnet-50-dilated-res3dx'
-    net = cnn_add_loss_fcn8s_resnet50_dilated_res3dx(opts, net);
-  case 'resnet-50-dilated-res3dx-3x3'
-    net = cnn_add_loss_fcn8s_resnet50_dilated_res3dx_3x3(opts, net);
-  case 'resnet-50-spatial'
-    net = cnn_add_loss_fcn8s_resnet50_spatial(opts, net);
-  case 'resnet-50'
-    net = cnn_add_loss_fcn8s_resnet50(opts, net);
-  case 'resnet-101'
-    error('not implemented yet');
-  case 'resnet-152'
-    error('not implemented yet');
-  otherwise
-    switch opts.fcnScale
-      case 'fcn8s'
-        net = cnn_add_loss_fcn8s_vgg16(opts, net);
-      case 'fcn4s'
-        net = cnn_add_loss_fcn4s_vgg16(opts, net);
-    end
 end
 
 %% compute receptive fields and canonical variable sizes 
@@ -254,13 +192,9 @@ net.meta.lossType = opts.lossType;
 net.meta.var2idx = var2idx;
 
 sz_ = opts.inputSize;
-if ~opts.multiRes
-    net.meta.varsizes = net.getVarSizes({'data',[sz_,3,1]});
-else
-    for i = 1:3
-        tsz_ = round(sz_ * 2^(i-2));
-        net.meta.varsizes{i} = net.getVarSizes({'data',[tsz_,3,1]});
-    end
+for i = 1:3
+  tsz_ = round(sz_ * 2^(i-2));
+  net.meta.varsizes{i} = net.getVarSizes({'data',[tsz_,3,1]});
 end
 net.meta.recfields = net.getVarReceptiveFields('data');
 
@@ -271,12 +205,7 @@ net.meta.posThresh = opts.posThresh;
 net.meta.negThresh = opts.negThresh;
 
 %% assign training function
-if opts.noContext
-    imdb.clusters = clusters;
-    trainFn = @cnn_train_dag_nocontext; 
-else
-    trainFn = str2func(opts.trainFn); 
-end
+trainFn = str2func(opts.trainFn); 
 
 %% print out training options
 opts
@@ -295,7 +224,6 @@ derOutputs = {'loss_cls', 1, 'loss_reg', 1};
 function fn = getBatchFn(batchGetter, opts, meta)
 useGpu = numel(opts.train.gpus) > 0 ;
 
-bopts.multiRes = opts.multiRes; 
 bopts.numThreads = opts.numFetchThreads ;
 bopts.inputSize = meta.normalization.inputSize ;
 bopts.border = meta.normalization.border ;
