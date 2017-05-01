@@ -1,5 +1,4 @@
 % 
-
 clear all;
 
 addpath matconvnet;
@@ -8,6 +7,10 @@ vl_setupnn;
 
 addpath toolbox/nms;
 addpath toolbox/export_fig;
+
+%
+MAX_INPUT_DIM = 9000;
+MAX_DISP_DIM = 3000;
 
 % specify pretrained model (download if needed)
 model_path = 'models/hr_res101.mat';
@@ -18,10 +21,10 @@ if ~exist(model_path)
 end
 
 % use gpu or not (make sure you have matconvnet compiled with gpu)
-gpu_id = 2;
+gpu_id = 4;
 
 % setup testing threshold
-thresh = 0.5;
+thresh = 0.9;
 nmsthresh = 0.1;
 
 % loadng pretrained model (and some final touches) 
@@ -48,8 +51,9 @@ normal_idx = find(clusters(:,5) == 1);
 %scales = [-1 0 1]; % update: adapt to image resolution (see below)
 
 % run through all images under demo/data
-files = dir('demo/data/*');
-for f = dir('demo/data/*')'
+files = dir('demo/data/*.jpg');
+files = files(4);
+for f = files'
     if strcmp(f.name, '.') || strcmp(f.name, '..'),
         continue;
     end
@@ -58,7 +62,11 @@ for f = dir('demo/data/*')'
     if ~strcmp(lower(ext), '.jpg') && ~strcmp(lower(ext), '.png')
         continue;
     end
-    raw_img = imread(fullfile('demo/data', f.name));
+    try
+        raw_img = imread(fullfile('demo/data', f.name));
+    catch
+        continue;
+    end
     raw_img = single(raw_img);
 
     % 
@@ -67,8 +75,10 @@ for f = dir('demo/data/*')'
                     floor(log2(max(clusters_h(normal_idx)/raw_h))));
     % <=1: avoid too much artifacts due to interpolation
     % 5000: in case run out of memory 
-    max_scale = min(1, -log2(max(raw_h, raw_w)/5000));
-    scales = min_scale:.5:max_scale;
+    % max_scale = min(1, -log2(max(raw_h, raw_w)/MAX_INPUT_DIM));
+    max_scale = 0;
+    %scales = min_scale : 0.5 : max_scale;
+    scales = [min_scale:0, 0.5:0.5:max_scale];
     %2.^scales .* raw_h
     %2.^scales .* raw_w
 
@@ -76,6 +86,7 @@ for f = dir('demo/data/*')'
     reg_bbox = [];
     for s = 2.^scales
         img = imresize(raw_img, s, 'bilinear');
+        fprintf('processing an image with %d x %d size.\n', round(size(img,1)), round(size(img,2)));
         img = bsxfun(@minus, img, averageImage);
 
         if strcmp(net.device, 'gpu')
@@ -151,9 +162,26 @@ for f = dir('demo/data/*')'
     reg_bbox(:,[2 4]) = max(1, min(raw_h, reg_bbox(:,[2 4])));
     reg_bbox(:,[1 3]) = max(1, min(raw_w, reg_bbox(:,[1 3])));
 
-    % visualize results (faces shorter than 10px are not shown)
-    visualize_detection(uint8(raw_img), reg_bbox, thresh);
+    %
+    vis_img = raw_img;
+    vis_bbox = reg_bbox;
+    if max(raw_h, raw_w) > MAX_DISP_DIM
+        vis_scale = MAX_DISP_DIM/max(raw_h, raw_w);
+        vis_img = imresize(raw_img, vis_scale);
+        vis_bbox(:,1:4) = vis_bbox(:,1:4) * vis_scale;
+    end
+    visualize_detection(uint8(vis_img), vis_bbox, thresh);
 
+    %
+    drawnow;
+
+    keyboard;
     % (optional) export figure 
-    export_fig('-dpng', '-native', '-opengl', '-transparent', fullfile('demo/visual', [name '.png']));
+    export_fig('-dpng', '-native', '-opengl', '-transparent', fullfile('demo/visual', [name '.png']), '-r300');
+
+    fprintf('finish %s\n', f.name);
+
+    keyboard;
 end
+
+gpuDevice([]); 
