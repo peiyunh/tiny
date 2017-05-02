@@ -21,18 +21,14 @@ opts.testMultires = false;
 opts.testTag = '';
 opts.inputSize = [500, 500]; 
 
-opts.noContext = false; 
-
 opts.evalWithReg = true;
 opts.tag = '';
 opts.bboxReg = true;
 opts.skipLRMult = [1, 0.001, 0.0001, 0.00001];
 opts.vis = true;
-opts.useDropout = true;
 opts.testEpoch = 0;
-opts.testIter = 0;
 opts.testSet = 'val';
-opts.resDir = 'result/';
+opts.resDir = 'results/';
 opts.clusterNum = 25;
 opts.clusterName = ''; 
 opts.sampleSize = 256;
@@ -52,13 +48,11 @@ opts.probThresh = 0.05;
 opts.nmsThresh = 0.3;
 
 sfx = opts.modelType ;
-if opts.useDropout, sfx = [sfx '-dropout']; end
 sfx = [sfx '-' 'sample' num2str(opts.sampleSize)] ; 
 sfx = [sfx '-' 'posfrac' num2str(opts.posFraction)] ; 
 sfx = [sfx '-' 'N' num2str(opts.clusterNum)];
 
 if opts.bboxReg, sfx = [sfx '-' 'bboxreg']; end
-if opts.noContext, sfx = [sfx '-' 'nocontext']; end;
 
 if any(opts.inputSize~=500), 
   sz = opts.inputSize;
@@ -357,11 +351,11 @@ for i = 1:numel(test)
   fprintf(fout, '%s/%s%s\n', event, imname, imext);
   fprintf(fout, '%d\n', size(srects,1));
   for j = 1:size(srects, 1)
-    fprintf(fout, '%d %d %d %d %d %f\n', ...
+    fprintf(fout, '%d %d %d %d %f\n', ...
             srects(j,1), srects(j,2), ...
             srects(j,3)-srects(j,1)+1, ...
             srects(j,4)-srects(j,2)+1, ...
-            srects(j,5), srects(j,6));
+            srects(j,end));
   end
   fclose(fout);
   

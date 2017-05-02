@@ -20,7 +20,6 @@ opts.trainFn = '@cnn_train_dag';
 opts.batchGetterFn = '@cnn_get_batch_logistic_zoom';
 opts.freezeResNet = false;
 opts.tag = '';
-opts.useDropout = true;
 opts.clusterNum = 25;
 opts.clusterName = '';
 opts.bboxReg = true;
@@ -44,7 +43,6 @@ opts.maxClusterSize = opts.inputSize;
 
 sfx = opts.modelType ;
 if opts.freezeResNet, sfx = ['freezed-' sfx] ; end
-if opts.useDropout, sfx = [sfx '-dropout'] ; end
 sfx = [sfx '-' 'sample' num2str(opts.sampleSize)] ; 
 sfx = [sfx '-' 'posfrac' num2str(opts.posFraction)] ; 
 sfx = [sfx '-' 'N' num2str(opts.clusterNum)];

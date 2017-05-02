@@ -8,10 +8,12 @@
 %    clean, but this results in a relatively poor recall. However, to achieve a
 %    nice recall, we have to lower the threshold of detection confidence and
 %    increase the overlap threshold of NMS. Currently, the confidence threshold
-%    is set to 0.9 and the NMS threshold is set to 0.1.
+%    is set to 0.9 and the NMS threshold is set to 0.1. 
 % 
-%    For more details, please refer to our experiment script
-%    (scripts/hr_res101.m) and the main test function (cnn_widerface_test_AB.m).
+%    In our WIDER FACE experiments, we set confidence threshold to 0.03 and NMS
+%    threshold to 0.3. Additionally, we test with a fixed set of scales. For
+%    more details, please refer to our experiment script (scripts/hr_res101.m)
+%    and the main test function (cnn_widerface_test_AB.m).
 
 clear all;
 
