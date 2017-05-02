@@ -1,7 +1,8 @@
 data/widerface/WIDER_test
 data/widerface/WIDER_train
 data/widerface/WIDER_val
-result/
+results/
 archive/
 models/
 demo/
+trained_models/

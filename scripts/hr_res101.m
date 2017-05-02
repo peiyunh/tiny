@@ -7,7 +7,7 @@ end
 %% general settings 
 overWrite = false;
 modelType = 'resnet-101-simple';
-pretrainModelPath = 'matconvnet/imagenet-resnet-101-dag.mat';
+pretrainModelPath = 'models/imagenet-resnet-101-dag.mat';
 inputSize = [500, 500];
 trainFn = '@cnn_train_dag_hardmine';
 batchGetterFn = '@cnn_get_batch_hardmine';
