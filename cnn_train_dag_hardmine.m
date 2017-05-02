@@ -1,3 +1,16 @@
+%  FILE:   cnn_train_dag_hardmine.m
+% 
+%    This function works with the get batch function and trains the detection
+%    network with hard negative mining.
+% 
+%  INPUT:  imagePaths (image paths of a batch of images)
+%          imageSizes (image sizes of the same batch of images)
+%          labelRects (ground truth bounding boxes)
+% 
+%  OUTPUT: images (500x500 random cropped regions)
+%          clsmaps (ground truth classification heat map)
+%          regmaps (ground truth regression heat map)
+
 function [net,stats] = cnn_train_dag_hardmine(net, imdb, getBatch, varargin)
 %CNN_TRAIN_DAG Demonstrates training a CNN using the DagNN wrapper
 %    CNN_TRAIN_DAG() is similar to CNN_TRAIN(), but works with

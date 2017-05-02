@@ -1,18 +1,5 @@
 function net = cnn_add_loss_fcn8s_resnet101_simple(opts, net)
 
-% NOTE We learn from pascal-fcn8s-tvg-dag how to crop, in both
-% upsampling and crop layer. 
-
-% NOTE Besides, there is a slight modification
-% that we pad 102 pixels in the first conv now, with resnet-50. The
-% intuition is that its first conv has a spatial size of 7x7, so
-% initally it was padded with 3 on each side. So on top of that, we
-% pad another 99 pixels.
-
-%% NOTE no need to pad anymore 
-% add padding to resnet for fcn-style multi-layer combination
-% net.layers(1).block.pad = net.layers(1).block.pad 
-
 %%
 if opts.freezeResNet,
     for i = 1:numel(net.params)
@@ -22,7 +9,6 @@ end
 
 %% 
 N = opts.clusterNum;
-loss = opts.lossType; 
 skipLRMultipliers = opts.skipLRMult;
 learningRates = skipLRMultipliers;
 
@@ -46,6 +32,7 @@ for i = 1:numel(names)
     net.removeLayer(names{i});
 end
 
+% NOTE: we end up not using features from res5 
 % %% update 'fc1000' (on 'pool5')
 % lidx = net.getLayerIndex('fc1000');
 % fidx = net.getParamIndex('fc1000_filter'); 
@@ -82,23 +69,10 @@ net.params(fidx).learningRate = learningRates(2);
 net.params(bidx).value = bias; 
 net.params(bidx).learningRate = learningRates(2);
 
-%% add crop and sum
-% crop 
-%net.addLayer('crop',dagnn.Crop('crop',[5,5]),...
-%             {'score_res4', 'score2'}, 'score_res4c');
-% sum 
-%net.addLayer('fuse',dagnn.Sum(),{'score_res4c', 'score2'}, ...
-%             'score_res4_fused');
-
 %% add upsampling 
 filter = single(bilinear_u(4, 1, 5*N));
 
-% NOTE I changed this when I set input size to be [750 1000] so
-% that the sum layer can have scores with matched dimensions
-
-%ctblk = dagnn.ConvTranspose('size', size(filter), 'upsample', 2, ...
-%                            'crop', [1,2,1,2], 'hasBias', false);
-
+% adapt for different input sizes (we end up using 500x500)
 if all(opts.inputSize==500)
     ctblk = dagnn.ConvTranspose('size', size(filter), 'upsample', 2, ...
                                 'crop', [1,2,1,2], 'hasBias', false);
@@ -112,7 +86,7 @@ else
     error('Input size not supported');
 end
 
-%net.addLayer('score4', ctblk, 'score_res4_fused', 'score4', 'score4f');
+% define bilinear interpolation filter (fixed weights) 
 net.addLayer('score4', ctblk, 'score_res4', 'score4', 'score4f');
 fidx = net.getParamIndex('score4f');
 net.params(fidx).value = filter;
@@ -131,14 +105,9 @@ net.params(fidx).learningRate = learningRates(3);
 net.params(bidx).value = bias; 
 net.params(bidx).learningRate = learningRates(3);
 
-
-%% no need to crop actually 
-% add crop, upsampling, and sum
-% crop 
-%net.addLayer('cropx',dagnn.Crop('crop',[9,9]),...
-%             {'score_res3', 'score4'}, 'score_res3c');
-%net.addLayer('cropx',dagnn.Crop('crop',[0,0]),...
-%             {'score_res3', 'score4'}, 'score_res3c');
+% Note: since we train on cropped regions with fixed size,
+% we don't need to add cropping layers for aligning heat maps
+% before adding them
 
 % sum 
 net.addLayer('fusex',dagnn.Sum(),{'score_res3', 'score4'}, ...

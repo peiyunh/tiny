@@ -1,4 +1,18 @@
+%  FILE:   minimal_demo.m
+%
+%    This script serves as a minimal demo for our face detector. Note that
+%    running this file does not reproduce the same numbers as reported in our
+%    paper, due to different parameter setting. 
 % 
+%    In this demo, we set the parameters in a way that the visualization looks
+%    clean, but this results in a relatively poor recall. However, to achieve a
+%    nice recall, we have to lower the threshold of detection confidence and
+%    increase the overlap threshold of NMS. Currently, the confidence threshold
+%    is set to 0.9 and the NMS threshold is set to 0.1.
+% 
+%    For more details, please refer to our experiment script
+%    (scripts/hr_res101.m) and the main test function (cnn_widerface_test_AB.m).
+
 clear all;
 
 addpath matconvnet;

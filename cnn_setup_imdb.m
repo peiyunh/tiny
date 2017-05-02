@@ -1,3 +1,12 @@
+%  FILE:   cnn_setup_imdb.m
+%
+%    This function reads WIDER FACE dataset and generates a MATLAB struct
+%    variable that is more friendly and eaiser to work with. 
+%  
+%  INPUT:  
+% 
+%  OUTPUT: imdb (a more user-friendly struct variable for the dataset)
+
 function imdb = cnn_setup_imdb(varargin)
 
 opts.dataDir = fullfile('data','widerface') ;
@@ -10,7 +19,6 @@ imdb.images = struct();
 imdb.labels = struct();
 
 imdb.images.name = {};
-%imdb.events = {};
 
 cnt = 0;
 % train

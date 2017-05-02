@@ -1,5 +1,12 @@
+%  FILE:   cnn_init.m
+%
+%    This function initializes a well-known conv-net from scratch. 
+%  
+%  INPUT:  See below 
+% 
+%  OUTPUT: net (initialized network)
+
 function net = cnn_init(varargin)
-% CNN_IMAGENET_INIT  Initialize a standard CNN for ImageNet
 
 opts.scale = 1 ;
 opts.initBias = 0.1 ;

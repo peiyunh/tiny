@@ -1,3 +1,15 @@
+%  FILE:   cluster_rects.m
+%
+%    This function derive canonical bounding box shapes by applying K-medoid
+%    clustering on a set of bounding boxes.
+%  
+%  INPUT:  imdb        (dataset) 
+%          N           (number of medoids)
+%          minsz/maxsz (filter out boxes that are either too big or too small)
+%          vis         (whether we visualize the clustering results)
+%
+%  OUTPUT: C           (N medoids)
+
 function C  = cluster_rects(imdb, N, minsz, maxsz, vis)
 if nargin < 5
   vis = 0;
@@ -19,7 +31,7 @@ rects = rects(idx,:);
 fprintf('Ignored faces smaller than %dx%d, %d bboxes left.\n',minsz(1),minsz(2),numel(idx));
 
 %% subsample for faster clustering
-rects = rects(randsample(size(rects,1), min(size(rects,1), 5e4)), :);
+rects = rects(randsample(size(rects,1), min(size(rects,1), 1e5)), :);
 fprintf('Clustering on %d/%d face bounding boxes.\n', size(rects,1), numel(idx));
 
 %% build kmedoids

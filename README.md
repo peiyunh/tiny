@@ -1,4 +1,4 @@
-# [Finding Tiny Faces](https://arxiv.org/abs/1612.04402)
+OB# [Finding Tiny Faces](https://arxiv.org/abs/1612.04402)
 By [Peiyun Hu](https://cs.cmu.edu/~peiyunh), [Deva Ramanan](https://cs.cmu.edu/~deva)
 
 ## Demo
@@ -20,4 +20,7 @@ Download [WIDER FACE](http://mmlab.ie.cuhk.edu.hk/projects/WIDERFace/) and place
 - `data/widerface/WIDER_train` (images for training set)
 
 ### Training code
+
+We released the results of our clustering in `data/widerface/RefBox_N25_scaled.mat`. 
+
 Coming soon.

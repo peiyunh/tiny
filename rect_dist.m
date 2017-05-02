@@ -1,3 +1,16 @@
+%  FILE:   rect_dist.m
+% 
+%    This function takes two sets of bounding boxes and computes the Jaccard
+%    distance between every pair of bounding boxes. It is written in a way that
+%    it can be used as a customized distance function, meaning one can use it
+%    with pdist2 etc.
+% 
+%  INPUT:  XI [Mx4]   (where M is the number of bounding boxes)
+%          XJ [Nx4]   (where N is the number of bounding boxes)
+% 
+%  OUTPUT: D  [MxN]   
+%          
+
 function D = rect_dist(XI,XJ)
 
 %XI = round(XI); 

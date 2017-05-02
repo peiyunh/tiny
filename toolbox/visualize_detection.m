@@ -1,8 +1,7 @@
 function visualize_detection(img, bbox, thr)
 
-imshow(img);
+if ~isempty(img), imshow(img); end
 
-%colors = parula(100);
 colors = parula(100);
 scores = vl_nnsigmoid(bbox(:,end));
 

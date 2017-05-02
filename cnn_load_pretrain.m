@@ -1,3 +1,16 @@
+%  FILE:   cnn_load_pretrain.m
+%
+%    This function takes an input network and fill its parameter weights based
+%    on a pretrained network. Parameters are matched based on names. If target
+%    network is empty, then use the structure of pretrained network. It happens
+%    when cnn_init.m fails to initialize the model structure.
+%  
+%  INPUT:  net (target network) 
+%          prepath (path to a network with pretrained weights)
+% 
+%  OUTPUT: net (target network with pretrained weights)
+
+
 function net = cnn_load_pretrain(net, prepath)
 
 % convert pretrained network to DagNN (easy indexing) 

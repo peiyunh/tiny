@@ -1,7 +1,16 @@
+%  FILE:   cnn_widerface.m
+%
+%    This function serves as the main function for training a model.
+%  
+%  INPUT:  configuration     (see code for details) 
+%
+%  OUTPUT: net               (trained network)
+%          info              (training stats)
+
 function [net, info] = cnn_widerface(varargin)
 startup;
 
-opts.clusterNoResize = false; 
+
 opts.keepDilatedZeros = false;
 opts.inputSize = [500, 500];
 opts.learningRate = 1e-4;
@@ -14,7 +23,6 @@ opts.tag = '';
 opts.useDropout = true;
 opts.clusterNum = 25;
 opts.clusterName = '';
-opts.lossType = 'logistic';
 opts.bboxReg = true;
 opts.skipLRMult = [1, 0.001, 0.0001, 0.00001];
 opts.sampleSize = 256;
@@ -23,7 +31,6 @@ opts.posThresh = 0.7;
 opts.negThresh = 0.3;
 opts.border = [0, 0];
 opts.pretrainModelPath = 'matconvnet/pascal-fcn8s-tvg-dag.mat';
-opts.fcnScale = 'fcn8s';
 opts.dataDir = fullfile('data','widerface') ;
 opts.modelType = 'pascal-fcn8s-tvg-dag' ;
 opts.networkType = 'dagnn' ;
@@ -38,12 +45,10 @@ opts.maxClusterSize = opts.inputSize;
 sfx = opts.modelType ;
 if opts.freezeResNet, sfx = ['freezed-' sfx] ; end
 if opts.useDropout, sfx = [sfx '-dropout'] ; end
-sfx = [sfx '-' opts.fcnScale] ;
 sfx = [sfx '-' 'sample' num2str(opts.sampleSize)] ; 
 sfx = [sfx '-' 'posfrac' num2str(opts.posFraction)] ; 
 sfx = [sfx '-' 'N' num2str(opts.clusterNum)];
 if opts.bboxReg, sfx = [sfx '-' 'bboxreg']; end
-if opts.lossType, sfx = [sfx '-' opts.lossType]; end
 
 if any(opts.inputSize~=500), 
     sz = opts.inputSize;
@@ -51,9 +56,6 @@ if any(opts.inputSize~=500),
 end
 if ~isempty(opts.clusterName)
     sfx = [sfx '-' 'cluster-' opts.clusterName]; 
-end
-if opts.clusterNoResize
-    sfx = [sfx '-' 'clusterNoResize'];
 end
 
 opts.expDir = fullfile('models', ['widerface-' sfx]) ;
@@ -65,7 +67,7 @@ opts.expDir
 
 opts.batchSize = 10;
 opts.numSubBatches = 1;
-opts.numEpochs = 20;
+opts.numEpochs = 50;
 opts.gpus = [1];
 opts.numFetchThreads = 8;
 opts.lite = false ;
@@ -92,8 +94,8 @@ net = cnn_init('model', opts.modelType, ...
 
 %% load pretrained weights
 if ~isempty(opts.pretrainModelPath)
-    fprintf('Loading pretrained weights from %s\n', opts.pretrainModelPath);
-    net = cnn_load_pretrain(net, opts.pretrainModelPath);
+  fprintf('Loading pretrained weights from %s\n', opts.pretrainModelPath);
+  net = cnn_load_pretrain(net, opts.pretrainModelPath);
 end
 
 net.meta.inputSize = opts.inputSize;
@@ -120,7 +122,6 @@ if ~exist(optpath), save(optpath, 'opts'); end
 
 
 %% define batch getter function
-assert(strcmp(opts.lossType, 'logistic')); 
 %batchGetter = @cnn_get_batch_logistic_zoom;
 if ~isempty(opts.batchGetterFn)
     batchGetter = str2func(opts.batchGetterFn);
@@ -156,24 +157,15 @@ clusterName = @(name,nd)(sprintf(tmp_str, name, nd));
 %clusterPath = fullfile(opts.dataDir, clusterName(...
 %    'RefBox',opts.clusterNum,minh,minw,maxh,maxw));
 boxName = 'RefBox'; 
-if opts.clusterNoResize
-    boxName = [boxName '_NoResize'];
-end
 clusterPath = fullfile(opts.dataDir, clusterName(boxName,opts.clusterNum));
 
 fprintf('cluster path: %s\n', clusterPath);
 
 if ~exist(clusterPath)
-    if opts.clusterNoResize
-        clusters = cluster_rects_noresz(imdb, opts.clusterNum, [minh ...
-                            minw], [maxh maxw]);
-    else
-        clusters = cluster_rects(imdb, opts.clusterNum, [minh minw], ...
-                                 [maxh maxw]);
-    end
-    save(clusterPath, 'clusters');
+  clusters = cluster_rects(imdb, opts.clusterNum, [minh minw], [maxh maxw]);
+  save(clusterPath, 'clusters');
 else
-    load(clusterPath);
+  load(clusterPath);
 end
 net.meta.clusters = clusters;
 
@@ -181,6 +173,8 @@ net.meta.clusters = clusters;
 switch opts.modelType
   case 'resnet-101-simple'
     net = cnn_add_loss_fcn8s_resnet101_simple(opts, net);
+  otherwise
+    error(sprintf('Not Implemented: model type %s', opts.modelType));
 end
 
 %% compute receptive fields and canonical variable sizes 
@@ -188,14 +182,10 @@ var2idx = containers.Map;
 for i = 1:numel(net.vars)
     var2idx(net.vars(i).name) = i;
 end
-net.meta.lossType = opts.lossType;
 net.meta.var2idx = var2idx;
 
 sz_ = opts.inputSize;
-for i = 1:3
-  tsz_ = round(sz_ * 2^(i-2));
-  net.meta.varsizes{i} = net.getVarSizes({'data',[tsz_,3,1]});
-end
+net.meta.varsizes = net.getVarSizes({'data',[sz_,3,1]});
 net.meta.recfields = net.getVarReceptiveFields('data');
 
 %% configure sampling hyperparameters
@@ -236,7 +226,6 @@ if isfield(meta, 'posFraction'), bopts.posFraction = meta.posFraction; end;
 if isfield(meta, 'posThresh'), bopts.posThresh = meta.posThresh; end;
 if isfield(meta, 'negThresh'), bopts.negThresh = meta.negThresh; end;
 
-if isfield(meta, 'lossType'), bopts.lossType = meta.lossType; end;
 if isfield(meta, 'clusters'), bopts.clusters = meta.clusters; end;
 if isfield(meta, 'var2idx'), bopts.var2idx = meta.var2idx; end;
 if isfield(meta, 'varsizes'), bopts.varsizes = meta.varsizes; end;

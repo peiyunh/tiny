@@ -1,3 +1,22 @@
+/* FILE:   compute_dense_overlap.cc
+
+     This function implements the dense overlap computation between all sliding
+     windows and all ground truth bounding boxes. Run compile_mex.m to compile
+     this file. 
+  
+   INPUT:  ofx/ofy (pixel-wise offset when mapping feature location to pixel location)
+           stx/sty (pixel-wise stride between two adjacent feature locations)
+           vsx/vsy (feature-level spatial size)
+           dx1/dy1/dx2/dy2 (bounding box coordinates for each feature location)
+                   (as if there is one sliding window centered at that location)
+           gx1/gy1/gx2/gy2 (ground truth bounding box coordinates)
+           zmx/zmy (compute overlap at a finer resolution and max pool back to feature-resolution)
+
+   OUTPUT: overlap (vsy x vsx x M x N, where M is the number of canonical
+                    shapes, and N is the number of ground truth bounding boxes.)
+
+*/
+
 #include "mex.h"
 #include "math.h"
 #include <algorithm>
