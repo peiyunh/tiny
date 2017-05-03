@@ -1,4 +1,4 @@
-%  FILE:   test_time.m
+%  FILE:   measure_runtime.m
 %
 %    This script provides an analysis on the run-time of our detector regarding
 %    different input resolution. In a multi-scale testing scenario, the run-time
@@ -13,7 +13,7 @@ vl_setupnn;
 addpath toolbox/nms;
 addpath toolbox/export_fig;
 
-gpu_id = 3;
+gpu_id = 1;
 model_path = 'trained_models/imagenet-resnet-101-dag.mat';
 
 % loadng pretrained model (and some final touches) 

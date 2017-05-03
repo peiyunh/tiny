@@ -39,6 +39,7 @@ addpath matconvnet;
 addpath matconvnet/matlab;
 vl_setupnn;
 
+addpath utils;
 addpath toolbox/nms;
 addpath toolbox/export_fig;
 

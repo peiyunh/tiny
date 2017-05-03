@@ -10,5 +10,6 @@ addpath init;
 addpath toolbox;
 addpath toolbox/nms;
 addpath scripts;
+addpath utils; 
 
 rng(0);
