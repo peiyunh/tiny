@@ -4,4 +4,5 @@ data/widerface/WIDER_val
 results/
 archive/
 models/
+demo/
 trained_models/

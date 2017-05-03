@@ -20,10 +20,10 @@
 function bboxes = tiny_face_detector(image_path, output_path, prob_thresh, nms_thresh, gpu_id)
 
 if nargin < 1 || isempty(image_path)
-  image_path = 'demo/data/selfie.jpg';
+  image_path = 'data/demo/selfie.jpg';
 end
 if nargin < 2 || isempty(output_path)
-  output_path = 'demo/visual/selfie.png';
+  output_path = './selfie.png';
 end
 if nargin < 3 || isempty(prob_thresh)
   prob_thresh = 0.5;

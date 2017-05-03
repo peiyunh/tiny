@@ -1,4 +1,4 @@
-![Demo result](https://raw.githubusercontent.com/peiyunh/tiny/master/demo/visual/selfie.png)
+![Demo result](https://raw.githubusercontent.com/peiyunh/tiny/master/selfie.png)
 
 # Finding Tiny Faces
 By Peiyun Hu and Deva Ramanan at Carnegie Mellon University. 
