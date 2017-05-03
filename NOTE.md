@@ -1,6 +1,6 @@
 To make sure users do not get distracted by the name of code files, I have
-renamed some files to simpler forms. This is a file to keep track of the
-renaming process.
+renamed some files to simpler forms. This is a file to keep track of name
+changes.
 
 
 - `scripts/hybrid_trires_limit30_hardmine_res101_normalscale_restdouble.m` <- `scripts/hr_res101.m`
