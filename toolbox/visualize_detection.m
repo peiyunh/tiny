@@ -12,7 +12,7 @@ for i = 1:size(bbox, 1)
     bw = bbox(i,3) - bbox(i,1) + 1;
     bh = bbox(i,4) - bbox(i,2) + 1;
     if min([bw bh]) <= 20
-        lw = 2;
+        lw = 0.5;
     else
         lw = max(2, min(3, min([bh/20, bw/20])));
     end

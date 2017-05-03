@@ -7,8 +7,7 @@
 %    In this demo, we set the parameters in a way that the visualization looks
 %    clean, but this results in a relatively poor recall. However, to achieve a
 %    nice recall, we have to lower the threshold of detection confidence and
-%    increase the overlap threshold of NMS. Currently, the confidence threshold
-%    is set to 0.9 and the NMS threshold is set to 0.1. 
+%    increase the overlap threshold of NMS. 
 % 
 %    In our WIDER FACE experiments, we set confidence threshold to 0.03 and NMS
 %    threshold to 0.3. Additionally, we test with a fixed set of scales. For
@@ -21,13 +20,13 @@
 function bboxes = tiny_face_detector(image_path, output_path, prob_thresh, nms_thresh, gpu_id)
 
 if nargin < 1 || isempty(image_path)
-  image_path = 'demo/data/selfie.png';
+  image_path = 'demo/data/selfie.jpg';
 end
 if nargin < 2 || isempty(output_path)
   output_path = 'demo/visual/selfie.png';
 end
 if nargin < 3 || isempty(prob_thresh)
-  prob_thresh = 0.9;
+  prob_thresh = 0.5;
 end
 if nargin < 4 || isempty(nms_thresh)
   nms_thresh = 0.1;
@@ -44,7 +43,7 @@ addpath toolbox/nms;
 addpath toolbox/export_fig;
 
 %
-MAX_INPUT_DIM = 9000;
+MAX_INPUT_DIM = 5000;
 MAX_DISP_DIM = 3000;
 
 % specify pretrained model (download if needed)
@@ -86,7 +85,7 @@ bboxes = [];
 t1 = tic; 
 [~,name,ext] = fileparts(image_path);
 try
-  raw_img = imread(fullfile('demo/data', image_path));
+  raw_img = imread(image_path);
 catch
   error(sprintf('Invalid input image path: %s', image_path));
   return;
@@ -157,7 +156,7 @@ for s = 2.^scales
   scores = score_cls(idx);
   tmp_bboxes = [rcx-rcw/2, rcy-rch/2, rcx+rcw/2, rcy+rch/2];
 
-  tmp_bboxes = horzcat(tmp_bboxes ./ s, fc, scores);
+  tmp_bboxes = horzcat(tmp_bboxes ./ s, scores);
 
   bboxes = vertcat(bboxes, tmp_bboxes);
 end
