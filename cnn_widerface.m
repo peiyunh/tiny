@@ -93,6 +93,14 @@ net = cnn_init('model', opts.modelType, ...
 %% load pretrained weights
 if ~isempty(opts.pretrainModelPath)
   fprintf('Loading pretrained weights from %s\n', opts.pretrainModelPath);
+  if ~exist(opts.pretrainModelPath)
+    [~,model_name,~] = fileparts(opts.pretrainModelPath);
+    download_path = sprintf('./trained_models/%s.mat', model_name);
+    download_url = sprintf('http://www.vlfeat.org/matconvnet/models/%s.mat', model_name); 
+    fprintf('Downloading model %s from %s to %s ... \n', model_name, download_url, download_path);
+    cmd = sprintf('wget -O %s %s', download_path, download_url); 
+    system(cmd);
+  end
   net = cnn_load_pretrain(net, opts.pretrainModelPath);
 end
 

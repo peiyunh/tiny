@@ -1,3 +1,7 @@
+%  FILE:   minimal_demo.m
+%
+%    This script add important paths and setup the matconvnet. 
+
 addpath matconvnet; 
 addpath matconvnet/matlab; 
 vl_setupnn; 

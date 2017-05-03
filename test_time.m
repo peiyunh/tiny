@@ -1,3 +1,9 @@
+%  FILE:   test_time.m
+%
+%    This script provides an analysis on the run-time of our detector regarding
+%    different input resolution. In a multi-scale testing scenario, the run-time
+%    is dominated by the time on the largest resolution.
+
 clear all;
 
 addpath matconvnet;
@@ -8,28 +14,20 @@ addpath toolbox/nms;
 addpath toolbox/export_fig;
 
 gpu_id = 3;
-%model_path = 'models/hr_res101.mat';
-model_path = 'models/imagenet-resnet-101-dag.mat';
+model_path = 'trained_models/imagenet-resnet-101-dag.mat';
 
 % loadng pretrained model (and some final touches) 
 net = load(model_path);
-%net = dagnn.DagNN.loadobj(net.net);
 net = dagnn.DagNN.loadobj(net);
 if gpu_id > 0 % for matconvnet it starts with 1 
     gpuDevice(gpu_id);
     net.move('gpu');
 end
-%net.layers(net.getLayerIndex('score4')).block.crop = [1,2,1,2];
-%net.addLayer('cropx',dagnn.Crop('crop',[0 0]),...
-%             {'score_res3', 'score4'}, 'score_res3c'); 
-%net.setLayerInputs('fusex', {'score_res3c', 'score4'});
-%net.addLayer('prob_cls', dagnn.Sigmoid(), 'score_cls', 'prob_cls');
 
 %
 iter_num = 100;
 
 scale = 2; 
-
 %
 input_size = [1080*scale, 1920*scale, 3, 1];
 img = gpuArray(rand(input_size, 'single'));

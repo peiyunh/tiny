@@ -463,6 +463,8 @@ function epoch = findLastCheckpoint(modelDir)
 % -------------------------------------------------------------------------
 list = dir(fullfile(modelDir, 'net-epoch-*.mat')) ;
 
+epoch = 0;
+
 tokens = regexp({list.name}, 'net-epoch-([\d]+).mat', 'tokens') ;
 % find latest epoch
 for i = 1:numel(tokens)

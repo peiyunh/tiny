@@ -1,12 +1,17 @@
-%% NOTE This evaluation script is built on the ignore list given
-%% by the benchmark. It evaluates on every image regardless of the
-%% difficult setting. For hard setting, it turns out to evaluate on
-%% all images that are taller than 10 pixels. For medium setting,
-%% it evaluates on a subset of that.
-
-%% NOTE also, to make evaluation more efficient, we will evaluate
-%% all three settings in the same time and avoid loading results
-%% three times. 
+%  FILE:   cnn_widerface.m
+%
+%    This function serves as the main function for evaluating a model. It loads
+%    detection and ground truth and evaluates at all three difficulty levels at
+%    once. 
+% 
+%    Note that this evaluation script consistently produces slightly lower
+%    numbers (mAPs) comparing to the official evaluation script. I implement my
+%    own version because it runs faster and it is more customizable, in terms of
+%    adding visualization etc.
+%  
+%  INPUT:  configuration (see code for details)
+%
+%  OUTPUT: none         
 
 function cnn_widerface_eval(varargin)
 
@@ -40,7 +45,6 @@ opts.sampleSize = 256;
 opts.posFraction = 0.5; 
 opts.posThresh = 0.7;
 opts.negThresh = 0.3;
-opts.border = [0, 0];
 opts.pretrainModelPath = 'matconvnet/pascal-fcn8s-tvg-dag.mat';
 opts.dataDir = fullfile('data','widerface') ;
 opts.modelType = 'pascal-fcn8s-tvg-dag' ;
@@ -82,7 +86,7 @@ opts.imdbPath = fullfile(opts.dataDir, 'imdb.mat');
 [opts, varargin] = vl_argparse(opts, varargin) ;
 
 %
-%fprintf('imdbPath: %s\n', opts.imdbPath);
+
 if exist(opts.imdbPath) 
     imdb = load(opts.imdbPath) ;
 else
@@ -91,15 +95,9 @@ else
     save(opts.imdbPath, '-struct', 'imdb') ;
 end
 
-%if ~isfield(imdb.labels, 'occid')
-%   imdb = cnn_setup_imdb_full('dataDir', opts.dataDir);
-%    if ~exist(opts.expDir), mkdir(opts.expDir) ; end
-%    save(opts.imdbPath, '-struct', 'imdb') ;
-%end
-
 %
 if opts.testEpoch == 0
-    [testEpoch, testIter] = findLastCheckpoint(opts.expDir);
+    testEpoch = findLastCheckpoint(opts.expDir);
     if testEpoch==0
         error('No available model for evaluation.');
     end
@@ -134,7 +132,6 @@ if strcmp(opts.resDir, 'result/')
 else
     resDir = opts.resDir;
 end
-%fprintf('Evaluate model %s\n', testName);
 
 % load ground truth info 
 %fprintf('Loading ground truth annotation for %s.\n', opts.testSet);
@@ -172,9 +169,6 @@ med_gt(numel(test)) = struct('BB', [], 'det', []);
 hard_gt(numel(test)) = struct('BB', [], 'det', []);
 for i = 1:numel(test)
     eventId = imdb.labels.eventid(test(i));
-    %if ~isnan(diffId) && (imdb.events.diff(eventId)~=diffId)
-    %    continue; 
-    %end
     
     gtrects = imdb.labels.rects{test(i)};
     gt(i).BB = gtrects';
@@ -184,9 +178,6 @@ for i = 1:numel(test)
     
     gt_h = gtrects(:,4)-gtrects(:,2)+1;
     gt_w = gtrects(:,3)-gtrects(:,1)+1;
-    % NOTE: my way of ignoring (according to the paper) 
-    %gt(i).ign = (gt_h < 10) | (gt_w < 10);
-    %gt(i).ign = (gt_h < 10);
 
     % NOTE: using released evaluation tools
     img_size = imdb.images.size(test(i),:);
@@ -200,19 +191,11 @@ for i = 1:numel(test)
     easy_gt(i).ign(easy_info.ignore_list{eventId}{img_idx}) = 0;
     med_gt(i).ign(med_info.ignore_list{eventId}{img_idx}) = 0;
     hard_gt(i).ign(hard_info.ignore_list{eventId}{img_idx}) = 0;
-
-    % NOTE: there will be some difference here
-    %if ~all(find(gt_h >= 10) == eval_info.ignore_list{eventId}{img_idx})
-    %    fprintf('%s not matched\n', img_name);
-    %    keyboard;
-    %end
     
     easy_npos = easy_npos + sum(easy_gt(i).ign == 0);
     med_npos = med_npos + sum(med_gt(i).ign == 0);
     hard_npos = hard_npos + sum(hard_gt(i).ign == 0);
 end
-%fprintf('easy: %d, med: %d, hard: %d\n', easy_npos, med_npos, hard_npos);
-%fprintf('npos: %d\n', npos);
 
 % collect all predictions
 detrespath = fullfile(resDir, sprintf('detections.txt'));
@@ -220,9 +203,6 @@ if ~exist(detrespath) || 1
     fout = fopen(detrespath, 'w');
     for i = 1:numel(test)
         eventId = imdb.labels.eventid(test(i)); 
-        %if ~isnan(diffId) && (imdb.events.diff(eventId)~=diffId), 
-        %    continue; 
-        %end
 
         event = imdb.events.name{eventId}; 
         [~,imname,~] = fileparts(imdb.images.name{test(i)});
@@ -249,7 +229,6 @@ if ~exist(detrespath) || 1
     fclose(fout);
 end
 
-
 %
 [ids,confidence,b1,b2,b3,b4] = textread(detrespath, '%d %f %d %d %d %d');
 BB = [b1 b2 b3 b4]';
@@ -257,30 +236,6 @@ BB = [b1 b2 b3 b4]';
 % 
 bh = b4 - b2 + 1;
 bw = b3 - b1 + 1;
-
-% load 
-% clusterNum = opts.clusterNum;
-
-% name = sprintf('RefBox_N%d_min%dx%d_max%dx%d.mat', opts.clusterNum,...
-%                opts.minClusterSize(1), opts.minClusterSize(2), ...
-%                opts.maxClusterSize(1), opts.maxClusterSize(2));
-
-%clusterPath = fullfile(opts.dataDir, name);
-%if ~exist(clusterPath)
-%    error('Cluster file not found');
-%else
-%    load(clusterPath);
-%end
-
-%ch = round(clusters(:,4) - clusters(:,2))+1;
-%cw = round(clusters(:,3) - clusters(:,1))+1;
-
-%
-%tids = zeros(numel(bh),1);
-%for i = 1:size(clusters,1) 
-%    idx = find(bh == ch(i) & bw == cw(i)); 
-%    tids(idx) = i; 
-%end
 
 % sort detections by decreasing confidence
 [sc,si]=sort(-confidence);
@@ -419,14 +374,6 @@ for k = 1:nt
             testEpoch, testSet, opts.minOverlap(k), hard_aps(k))
 end
 
-
-%[~,resName,~] = fileparts(resDir); 
-%legend_name = resName;
-%ovid = find(opts.minOverlap==0.5);
-%pr_curve = [prec(:,ovid), rec(:,ovid)];
-%save(fullfile(resDir, sprintf('wider_pr_info_%s.mat', diffLevel)),...
-%     'pr_curve');
-    
 if opts.draw
     close all; 
     for i = 1:3
@@ -469,176 +416,19 @@ if opts.draw
     end
 end
 
-% ap of interest
-%api = find(opts.minOverlap == 0.1);
-%fp_ = fp_(:,api); 
-%tp_ = tp_(:,api); 
-
-% compute per image AP 
-%if strcmp(diffLevel, 'all')
-%    aps = computePerImageAP(ids, tp_, fp_, gt);
-%    showAPvsFaceDensityDist(resDir, aps, gt);
-%end
-
-%showSizeScoreTPFP(tp_,fp_,BB,-sc);
-%tp_ = easy_tp_;
-%fp_ = easy_fp_;
-%showFalsePositives(fp_, BB, -sc, ids, ovmaxs, imdb, resDir)
-
-%[corr, total] = computePrecisionPerDetector(resDir, tp_, fp_, tids, clusters);
-%keyboard;
-
-function showSizeScoreTPFP(tp_,fp_,BB,score)
-figure; 
-
-BB = BB';
-sz = sqrt((BB(:,3)-BB(:,1)+1).*(BB(:,4)-BB(:,2)+1)); 
-tpi = find(tp_); 
-fpi = find(fp_);
-scatter(sz(tpi),score(tpi),30,'o','filled', 'markerfacecolor', 'g'); 
-hold on; 
-scatter(sz(fpi),score(fpi),30,'o','filled', 'markerfacecolor', 'r'); 
-hold off; 
-legend({'TP','FP'}); 
-xlabel('size'); 
-ylabel('score');
-
-function showFalsePositives(fp, BB, score, ids, ovmaxs, clusters, imdb, resDir)
-test = find(imdb.images.set==2);
-
-plotDir = fullfile(resDir, 'FPs') ;
-if ~exist(plotDir), mkdir(plotDir); end
-figure;
-idx = find(fp == 1); 
-for i = 1:numel(idx)
-    imid = ids(idx(i)); 
-    bb = BB(:,idx(i))'; 
-    gt = imdb.labels.rects{test(imid)};
-    name = imdb.images.name{test(imid)};
-    
-    imagePath = fullfile(imdb.imageDir, name) ;
-    imsz = imdb.images.size(test(imid),:);
-    factor = 500 / min(imsz(1:2));
-    im = imread(imagePath); 
-    
-    conf = score(idx(i));
-
-    %iou = max(1 - pdist2(bb,gt,@rect_dist));
-    ovmax = ovmaxs(idx(i));
-    
-    imagesc(im); 
-    axis image;
-    hold on;
-    plotBoxes(bb(1),bb(2),bb(3)-bb(1)+1,bb(4)-bb(2)+1,[1 0 0],1);
-
-    %for j = 1:size(gt,1)
-    %    gtmx = mean(gt(j,[1,3]));
-    %    gtmy = mean(gt(j,[2,4]));
-    %    mgt = gt(j,:) - [gtmx gtmy gtmx gtmy];
-    %    %[ub,ubi] = max(1-rect_dist(mgt, clusters./factor));
-    %    %ubb = clusters(ubi,:)./factor + [gtmx,gtmy,gtmx,gtmy]; 
-    %    %if ub > 0.5
-    %    %    plotBoxes(ubb(1),ubb(2),ubb(3)-ubb(1)+1,ubb(4)-ubb(2)+1,[1,1,1],1);
-    %    %    plotBoxes(gt(j,1),gt(j,2),gt(j,3)-gt(j,1)+1,gt(j,4)-gt(j,2)+1,[0,1,0],1);
-    %    %    %text(gt(j,3),gt(j,2),sprintf('ub%.3f',ub),'backgroundcolor','y');
-    %    %else
-    %    %plotBoxes(ubb(1),ubb(2),ubb(3)-ubb(1)+1,ubb(4)-ubb(2)+1,[1,1,1],1);
-    %    plotBoxes(gt(j,1),gt(j,2),gt(j,3)-gt(j,1)+1,gt(j,4)-gt(j,2)+1,[0,0,1],1);
-    %    %text(gt(j,3),gt(j,2),sprintf('ub%.3f',ub),'backgroundcolor','c');
-    %    %end
-    %end
-
-    tag = sprintf('%d x %d score%.2f - ovmax%.3f', bb(4)-bb(2)+1, bb(3)-bb(1)+1, conf, ovmax);
-    text(bb(3),bb(2),tag,'color','y');
-    hold off; 
-    title(sprintf('detection %d/%d', idx(i), numel(ids)));
-    
-    [~,imageName,~] = fileparts(imagePath);
-    print('-dpng', fullfile(plotDir, sprintf('%d-%s', idx(i), imageName)));
-end
-
-function [corrpreds, totalpreds] = computePrecisionPerDetector(resDir, tp, fp, tids, clusters)
-
-corrpreds = zeros(size(clusters,1),1);
-totalpreds = zeros(size(clusters,1),1);
-for i = 1:size(clusters,1)
-    idx = find(tids == i); 
-    if isempty(idx), continue; end
-    corrpreds(i) = sum(tp(idx)); 
-    totalpreds(i) = sum(fp(idx)) + corrpreds(i); 
-end
-
-function showAPvsFaceDensityDist(resDir, aps, gt)
-figure;
-N = numel(gt);
-num_pos_in_img = zeros(N,1); 
-for i = 1:N
-    num_pos_in_img(i) = size(gt(i).BB,2);
-end
-x = num_pos_in_img; 
-y = aps;
-% NOTE: interception has to be zero. 
-X = cat(2,ones(N,1),x);
-b = X \ y; 
-ycal = X * b; 
-h1 = plot(x, ycal, '--');
-hold on;
-h2 = scatter(x, y, 20, 'filled'); 
-hold off;
-linefit = sprintf('y=%.6f + %.6f*x', b);
-legend([h1, h2], linefit, 'data');
-ylim([0 1]);
-xlabel('Number of faces per image');
-ylabel('Per Image AP'); 
-print('-dpng', fullfile(resDir, 'AP_vs_FaceDensity.png'));
-
-function aps = computePerImageAP(ids, tp, fp, gt)
-N = numel(gt);
-aps = zeros(N,1);
-for i = 1:N
-    idx = find(ids == i); 
-    cfp = cumsum(fp(idx)); 
-    ctp = cumsum(tp(idx)); 
-    npos = size(gt(i).BB,2);
-    rec = ctp ./ npos;
-    prec = ctp ./ (ctp + cfp); 
-    aps(i) = VOCap(rec, prec);
-end
-
 % -------------------------------------------------------------------------
 function [epoch, iter] = findLastCheckpoint(modelDir)
 % -------------------------------------------------------------------------
 list = dir(fullfile(modelDir, 'net-epoch-*.mat')) ;
 
-tokens = regexp({list.name}, 'net-epoch-([\d]+)-it([\d]+).mat', 'tokens') ;
+epoch = 0;
 
-epoch = 0; iter = 0;
-if any(~cellfun(@isempty,tokens))
-    % find latest epoch
-    for i = 1:numel(tokens)
-        token = tokens{i}{1}; 
-        ep = str2num(token{1});
-        if ep >= epoch 
-            epoch = ep; 
-        end
-    end
-    % find latest iteration in that epoch
-    for i = 1:numel(tokens)
-        token = tokens{i}{1}; 
-        ep = str2num(token{1});
-        it = str2num(token{2});
-        if ep == epoch && it > iter
-            iter = it;        
-        end
-    end
-else
-    tokens = regexp({list.name}, 'net-epoch-([\d]+).mat', 'tokens') ;
-    % find latest epoch
-    for i = 1:numel(tokens)
-        token = tokens{i}{1}; 
-        ep = str2num(token{1});
-        if ep >= epoch 
-            epoch = ep; 
-        end
-    end
+tokens = regexp({list.name}, 'net-epoch-([\d]+).mat', 'tokens') ;
+% find latest epoch
+for i = 1:numel(tokens)
+  token = tokens{i}{1}; 
+  ep = str2num(token{1});
+  if ep >= epoch 
+    epoch = ep; 
+  end
 end
