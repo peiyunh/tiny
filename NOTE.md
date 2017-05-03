@@ -12,5 +12,7 @@ changes.
 - `cnn_widerface_test_AB.m` <- `cnn_widerface_test_with_zoom_AB_negborder.m`.
 
 - `data/widerface/RefBox_N25_scaled.mat` <- `data/widerface/RefBox_NoResize_N25_scaled.mat`. 
+- `data/widerface/RefBox_N25.mat` <- 'data/widerface/RefBox_NoResize_N25_min10x10_maxInfxInf.mat`
 
 - `cnn_widerface_eval.m` <- `cnn_widerface_eval_new.m`
+
