@@ -50,7 +50,7 @@ function bboxes = tiny_face_detector(image_path, output_path, prob_thresh, nms_t
 
 Here is a command you can run to reproduce our detection results on the world's largest selfie: 
 ```Matlab 
->> bboxes = tiny_face_detector('demo/data/selfie.jpg, 'demo/visual/selfie.png', 0.9, 0.1, 1)
+>> bboxes = tiny_face_detector('data/demo/selfie.jpg, './selfie.png', 0.5, 0.1, 1)
 ```
 
 ## Training 
