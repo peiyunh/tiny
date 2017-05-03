@@ -73,3 +73,6 @@ Please refer to `scripts/hr_res101.m` for more details on how training/testing/e
 
 ### Clustering
 We derive canonical bounding box shapes by K-medoids clustering (`cluster_rects.m`). For reproducibility, we provide our clustering results in `data/widerface/RefBox_N25.mat`. We also provide the version after template resolution analysis in `data/widerface/RefBox_N25_scaled.mat` (Fig. 8 in our paper).
+
+### Evaluation
+We provide both our own version of evaluation script (`cnn_widerface_eval.m`) and official evaluation script (`eval_tools/`). Our version consistently produces slightly lower numbers than the official one, but runs much faster. 
