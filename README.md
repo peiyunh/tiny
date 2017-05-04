@@ -35,6 +35,12 @@ Compile MatConvNet by running following commands in MATLAB:
                 'cudaMethod', 'nvcc', 'enableCudnn', true, 'cudnnRoot', [cudnn_dir]);
 ```
 
+Compile our MEX function in MATLAB: 
+```Matlab
+>> cd utils/;
+>> compile_mex; 
+```
+
 Download [WIDER FACE](http://mmlab.ie.cuhk.edu.hk/projects/WIDERFace/) and unzip data and annotation files to `data/widerface` such that: 
 ```zsh
 $ ls data/widerface
