@@ -35,6 +35,11 @@ Compile MatConvNet by running following commands in MATLAB:
                 'cudaMethod', 'nvcc', 'enableCudnn', true, 'cudnnRoot', [cudnn_dir]);
 ```
 
+To test if you successfully compiled MatConvNet, run: (see [Installing - MatConvNet](http://www.vlfeat.org/matconvnet/install/) for more details)
+```Matlab
+>> vl_testnn('gpu', true);   % vl_testnn('gpu', false) for cpu-only 
+```
+
 Compile our MEX function in MATLAB: 
 ```Matlab
 >> cd utils/;
