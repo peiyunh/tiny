@@ -27,17 +27,13 @@ Clone the repo recursively so you have [my fork of MatConvNet](https://github.co
 git clone --recursive git@github.com:peiyunh/tiny.git
 ```
 
-Compile MatConvNet by running following commands in MATLAB: 
+Compile MatConvNet by running following commands in MATLAB (see [Installing - MatConvNet](http://www.vlfeat.org/matconvnet/install/) for more details): 
 ```Matlab
 >> cd matconvnet/;
 >> addpath matlab/; 
 >> vl_compilenn('enableImreadJpeg', true, 'enableGpu', true, 'cudaRoot', [cuda_dir],...
                 'cudaMethod', 'nvcc', 'enableCudnn', true, 'cudnnRoot', [cudnn_dir]);
-```
-
-To test if you successfully compiled MatConvNet, run: (see [Installing - MatConvNet](http://www.vlfeat.org/matconvnet/install/) for more details)
-```Matlab
->> vl_testnn('gpu', true);   % vl_testnn('gpu', false) for cpu-only 
+>> vl_testnn('gpu', true);  % vl_testnn('gpu', false) for cpu-only 
 ```
 
 Compile our MEX function in MATLAB: 
