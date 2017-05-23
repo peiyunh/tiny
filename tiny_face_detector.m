@@ -49,7 +49,11 @@ MAX_INPUT_DIM = 5000;
 MAX_DISP_DIM = 3000;
 
 % specify pretrained model (download if needed)
-model_path = './trained_models/hr_res101.mat';
+model_dir = './trained_models';
+if ~exist(model_dir)
+  mkdir(model_dir);
+end
+model_path = fullfile(model_dir, 'hr_res101.mat');
 if ~exist(model_path)
   url = 'https://www.cs.cmu.edu/~peiyunh/tiny/hr_res101.mat';
   cmd = ['wget -O ' model_path ' ' url];
