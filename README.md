@@ -27,12 +27,19 @@ Clone the repo recursively so you have [my fork of MatConvNet](https://github.co
 git clone --recursive git@github.com:peiyunh/tiny.git
 ```
 
-Compile MatConvNet by running following commands in MATLAB: 
+Compile MatConvNet by running following commands in MATLAB (see [Installing - MatConvNet](http://www.vlfeat.org/matconvnet/install/) for more details): 
 ```Matlab
 >> cd matconvnet/;
 >> addpath matlab/; 
 >> vl_compilenn('enableImreadJpeg', true, 'enableGpu', true, 'cudaRoot', [cuda_dir],...
                 'cudaMethod', 'nvcc', 'enableCudnn', true, 'cudnnRoot', [cudnn_dir]);
+>> vl_testnn('gpu', true);  % vl_testnn('gpu', false) for cpu-only 
+```
+
+Compile our MEX function in MATLAB: 
+```Matlab
+>> cd utils/;
+>> compile_mex; 
 ```
 
 Download [WIDER FACE](http://mmlab.ie.cuhk.edu.hk/projects/WIDERFace/) and unzip data and annotation files to `data/widerface` such that: 
@@ -50,7 +57,7 @@ function bboxes = tiny_face_detector(image_path, output_path, prob_thresh, nms_t
 
 Here is a command you can run to reproduce our detection results on the world's largest selfie: 
 ```Matlab 
->> bboxes = tiny_face_detector('data/demo/selfie.jpg, './selfie.png', 0.5, 0.1, 1)
+>> bboxes = tiny_face_detector('data/demo/selfie.jpg', './selfie.png', 0.5, 0.1, 1)
 ```
 
 ## Training 
@@ -75,4 +82,4 @@ Please refer to `scripts/hr_res101.m` for more details on how training/testing/e
 We derive canonical bounding box shapes by K-medoids clustering (`cluster_rects.m`). For reproducibility, we provide our clustering results in `data/widerface/RefBox_N25.mat`. We also provide the version after template resolution analysis in `data/widerface/RefBox_N25_scaled.mat` (Fig. 8 in our paper).
 
 ### Evaluation
-We provide both our own version of evaluation script (`cnn_widerface_eval.m`) and official evaluation script (`eval_tools/`). Our version consistently produces slightly lower numbers than the official one, but runs much faster. 
+We provide both our own version of evaluation script (`cnn_widerface_eval.m`) and official evaluation script (`eval_tools/`). Our implementation runs much faster and is easier to customize. However, our version produces slightly lower numbers comparing to the official one. We use our evaluation script only for prototyping. All numbers in the paper are based on the official evaluation script. 
