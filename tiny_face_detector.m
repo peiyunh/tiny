@@ -22,16 +22,17 @@ function bboxes = tiny_face_detector(image_path, output_path, prob_thresh, nms_t
 if nargin < 1 || isempty(image_path)
   image_path = 'data/demo/selfie.jpg';
 end
-if nargin < 2 || isempty(output_path)
+% if nargin < 2 || isempty(output_path)
+if nargin < 2 
   output_path = './selfie.png';
 end
-if nargin < 3 || isempty(prob_thresh)
+if nargin < 3 
   prob_thresh = 0.5;
 end
-if nargin < 4 || isempty(nms_thresh)
+if nargin < 4 
   nms_thresh = 0.1;
 end
-if nargin < 5 || isempty(gpu_id)
+if nargin < 5 
   gpu_id = 0;  % 0 means no use of GPU (matconvnet starts with 1) 
 end
 
@@ -59,6 +60,7 @@ end
 fprintf('Loading pretrained detector model...\n');
 net = load(model_path);
 net = dagnn.DagNN.loadobj(net.net);
+net.mode = 'test';
 if gpu_id > 0 % for matconvnet it starts with 1 
   gpuDevice(gpu_id);
   net.move('gpu');
@@ -173,7 +175,7 @@ bboxes(:,[1 3]) = max(1, min(raw_w, bboxes(:,[1 3])));
 %
 t2 = toc(t1);
 
-% visualize with grace 
+% visualize detection on a reasonable resolution
 vis_img = raw_img;
 vis_bbox = bboxes;
 if max(raw_h, raw_w) > MAX_DISP_DIM

@@ -7,7 +7,7 @@ end
 %% general settings 
 overWrite = false;
 modelType = 'resnet-101-simple';
-pretrainModelPath = 'models/imagenet-resnet-101-dag.mat';
+pretrainModelPath = './trained_models/imagenet-resnet-101-dag.mat';
 inputSize = [500, 500];
 trainFn = '@cnn_train_dag_hardmine';
 batchGetterFn = '@cnn_get_batch_hardmine';
@@ -18,7 +18,7 @@ numSubBatches = 1;
 batchSize = 12;
 numEpochs = 50;
 tag = '';
-gpus = [1];
+gpus = [1 2 3 4];
 if numel(gpus) > 1
   batchSize = batchSize * numel(gpus);
 end
