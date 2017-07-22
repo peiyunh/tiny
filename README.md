@@ -60,8 +60,7 @@ Here is a command you can run to reproduce our detection results on the world's 
 >> bboxes = tiny_face_detector('data/demo/selfie.jpg', './selfie.png', 0.5, 0.1, 1)
 ```
 
-## Off-the-shelf Model Zoo 
-You can download the off-the-shelf models based on different architecture: 
+If you don't haven't downloaded the model, the demo script will do the work for you. However, you can still download the off-the-shelf models based on different architecture as listed below: 
 - [ResNet101](https://www.cs.cmu.edu/~peiyunh/tiny/hr_res101.mat)
 - [ResNet50](https://www.cs.cmu.edu/~peiyunh/tiny/hr_res50.mat)
 - [VGG16](https://www.cs.cmu.edu/~peiyunh/tiny/hr_vgg16.mat)
