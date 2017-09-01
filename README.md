@@ -36,10 +36,11 @@ Compile MatConvNet by running following commands in MATLAB (see [Installing - M
 >> vl_testnn('gpu', true);  % vl_testnn('gpu', false) for cpu-only 
 ```
 
-Compile our MEX function in MATLAB: 
+Compile our MEX function in MATLAB and test if it works as expected: 
 ```Matlab
 >> cd utils/;
->> compile_mex; 
+>> compile_mex;
+>> test_compute_dense_overlap;
 ```
 
 Download [WIDER FACE](http://mmlab.ie.cuhk.edu.hk/projects/WIDERFace/) and unzip data and annotation files to `data/widerface` such that: 
