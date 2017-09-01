@@ -83,7 +83,7 @@ switch mode
     numEpochsToTest = numEpochs;
     gpus = [1 2 3 4];
     gpuNum = numel(gpus);
-    taskPerGpu = 3;
+    taskPerGpu = 2;
     vis = false;
     probThresh = 0.03; 
     spmd (taskPerGpu * gpuNum)

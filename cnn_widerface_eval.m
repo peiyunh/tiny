@@ -37,7 +37,7 @@ opts.minOverlap = [0.3:0.2:0.7];
 opts.testEpoch = 0; 
 opts.testIter = 0; 
 opts.testSet = 'val';
-opts.resDir = 'result/';
+opts.resDir = 'results/';
 opts.testName = '';
 opts.clusterNum = 25;
 opts.clusterName = '';
@@ -124,7 +124,7 @@ if ~isempty(opts.testTag),
     testName = [testName '-' opts.testTag];
 end
 
-if strcmp(opts.resDir, 'result/')
+if strcmp(opts.resDir, 'results/')
     resDir = fullfile(opts.resDir, testName);
     if numel(resDir) > 255, resDir = strrep(resDir, '-nmsthresh0.3', ''); end
     if numel(resDir) > 255, resDir = strrep(resDir, 'widerface-resnet-50-',''); end
@@ -188,9 +188,12 @@ for i = 1:numel(test)
     med_gt(i).ign = ones(size(gtrects, 1), 1);
     hard_gt(i).ign = ones(size(gtrects, 1), 1);
 
-    easy_gt(i).ign(easy_info.ignore_list{eventId}{img_idx}) = 0;
-    med_gt(i).ign(med_info.ignore_list{eventId}{img_idx}) = 0;
-    hard_gt(i).ign(hard_info.ignore_list{eventId}{img_idx}) = 0;
+    % easy_gt(i).ign(easy_info.ignore_list{eventId}{img_idx}) = 0;
+    % med_gt(i).ign(med_info.ignore_list{eventId}{img_idx}) = 0;
+    % hard_gt(i).ign(hard_info.ignore_list{eventId}{img_idx}) = 0;
+    easy_gt(i).ign(easy_info.gt_list{eventId}{img_idx}) = 0;
+    med_gt(i).ign(med_info.gt_list{eventId}{img_idx}) = 0;
+    hard_gt(i).ign(hard_info.gt_list{eventId}{img_idx}) = 0;
     
     easy_npos = easy_npos + sum(easy_gt(i).ign == 0);
     med_npos = med_npos + sum(med_gt(i).ign == 0);
