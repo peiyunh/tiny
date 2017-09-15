@@ -133,21 +133,6 @@ if ~isempty(opts.batchGetterFn)
     batchGetter = str2func(opts.batchGetterFn);
 end
 
-%% compute image stats
-imageStatsPath = fullfile(opts.dataDir, 'imageStats.mat') ;
-if exist(imageStatsPath)
-    load(imageStatsPath, 'averageImage', 'rgbMean', 'rgbCovariance') ;
-else
-    [averageImage, rgbMean, rgbCovariance] = getImageStats(batchGetter, ...
-                                                      opts, net.meta, imdb) ;
-    save(imageStatsPath, 'averageImage', 'rgbMean', 'rgbCovariance') ;
-end
-net.meta.augmentation.transformation = 'f5';
-net.meta.normalization.averageImage = rgbMean ;
-[v,d] = eig(rgbCovariance) ;
-net.meta.augmentation.rgbVariance = 0.1*sqrt(d)*v' ;
-clear v d ;
-
 %% clustering
 minh = opts.minClusterSize(1); minw = opts.minClusterSize(2);
 maxh = opts.maxClusterSize(1); maxw = opts.maxClusterSize(2);
@@ -174,6 +159,21 @@ else
   load(clusterPath);
 end
 net.meta.clusters = clusters;
+
+%% compute image stats
+imageStatsPath = fullfile(opts.dataDir, 'imageStats.mat') ;
+if exist(imageStatsPath)
+    load(imageStatsPath, 'averageImage', 'rgbMean', 'rgbCovariance') ;
+else
+    [averageImage, rgbMean, rgbCovariance] = getImageStats(batchGetter, ...
+                                                      opts, net.meta, imdb) ;
+    save(imageStatsPath, 'averageImage', 'rgbMean', 'rgbCovariance') ;
+end
+net.meta.augmentation.transformation = 'f5';
+net.meta.normalization.averageImage = rgbMean ;
+[v,d] = eig(rgbCovariance) ;
+net.meta.augmentation.rgbVariance = 0.1*sqrt(d)*v' ;
+clear v d ;
 
 %% add predictors/losses
 switch opts.modelType
