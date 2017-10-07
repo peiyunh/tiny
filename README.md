@@ -13,11 +13,12 @@ In this repo, we provide a MATLAB implementation of Tiny face detector, includin
 ### Citing us
 If you find our work useful in your research, please consider citing: 
 ```latex
-@article{hu2016finding,
-  title={Finding Tiny Faces},
-  author={Hu, Peiyun and Ramanan, Deva},
-  journal={arXiv preprint arXiv:1612.04402},
-  year={2016}
+@InProceedings{Hu_2017_CVPR,
+  author = {Hu, Peiyun and Ramanan, Deva},
+  title = {Finding Tiny Faces},
+  booktitle = {The IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+  month = {July},
+  year = {2017}
 }
 ```
 
