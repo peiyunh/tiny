@@ -42,12 +42,13 @@ for i = 1:numel(event_list)
         imdb.labels.eventid(cnt) = i;
     end
 end
+
 % setup event list ( index is consistent with face_bbx_list )
-load(fullfile(opts.dataDir, 'event_diffmap.mat'));
-imdb.events.name = event_list; 
-for i = 1:numel(event_list)
-    imdb.events.diff(i) = diffmap(event_list{i}); 
-end
+%load(fullfile(opts.dataDir, 'event_diffmap.mat'));
+%imdb.events.name = event_list; 
+%for i = 1:numel(event_list)
+%    imdb.events.diff(i) = diffmap(event_list{i}); 
+%end
 
 % clear variables
 fprintf('Setup imdb: processed %d images.\n', cnt);
