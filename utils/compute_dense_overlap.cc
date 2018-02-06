@@ -64,7 +64,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
   const double zmy = mxGetScalar(prhs[15]);
 
   /* outputs */
-  const int dims[] = {vsy, vsx, nt, ng};
+  const mwSize dims[] = {vsy, vsx, nt, ng};
   /* printf("dims: %d %d %d %d\n", vsy, vsx, nt, ng); */
 
   mxArray *mx_overlap = mxCreateNumericArray(4, dims, mxDOUBLE_CLASS, mxREAL);
@@ -72,7 +72,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
   plhs[0] = mx_overlap;
 
   /* temporary buffer */
-  const int tmp_dims[] = {(vsy-1)*zmy+1, (vsx-1)*zmx+1, nt};
+  const mwSize tmp_dims[] = {(vsy-1)*zmy+1, (vsx-1)*zmx+1, nt};
   mxArray *mx_tmp_overlap = mxCreateNumericArray(3, tmp_dims, mxDOUBLE_CLASS, mxREAL);
   double *tmp_overlap = (double *)mxGetPr(mx_tmp_overlap);
   
