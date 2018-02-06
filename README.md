@@ -43,7 +43,7 @@ Compile our MEX function in MATLAB and test if it works as expected:
 >> compile_mex;
 >> test_compute_dense_overlap;
 ```
-If there is a compilation error, you may find this issue helpful: https://github.com/peiyunh/tiny/issues/24#issuecomment-363191754
+
 
 Download [WIDER FACE](http://mmlab.ie.cuhk.edu.hk/projects/WIDERFace/) and unzip data and annotation files to `data/widerface` such that: 
 ```zsh
