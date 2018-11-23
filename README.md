@@ -91,3 +91,8 @@ We derive canonical bounding box shapes by K-medoids clustering (`cluster_rects.
 
 ### Evaluation
 We provide both our own version of evaluation script (`cnn_widerface_eval.m`) and official evaluation script (`eval_tools/`). Our implementation runs much faster and is easier to customize. However, our version produces slightly lower numbers comparing to the official one. We use our evaluation script only for prototyping. All numbers in the paper are based on the official evaluation script. 
+
+## FAQ
+
+### How do I train it on my own datasets? 
+Training a `tiny-X-detector` on your own dataset might take just a little bit of coding and it is very doable. I would suggest start from the script named `cnn_setup_imdb.m`. It would produce a `imdb.mat` file which contains information about the path of images and the ground truth bounding boxes. You might need to make changes to the `cnn_setup_imdb.m` to work with your dataset. 
