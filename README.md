@@ -95,4 +95,4 @@ We provide both our own version of evaluation script (`cnn_widerface_eval.m`) an
 ## FAQ
 
 ### How do I train it on my own datasets? 
-Training a `tiny-X-detector` on your own dataset might take just a little bit of coding and it is very doable. I would suggest start from the script named `cnn_setup_imdb.m`. It would produce a `imdb.mat` file which contains information about the path of images and the ground truth bounding boxes. You might need to make changes to the `cnn_setup_imdb.m` to work with your dataset. 
+Training a `tiny-X-detector` on your own dataset takes just a little bit of coding and it is certainly doable. I would suggest start from the script named `cnn_setup_imdb.m`. The script produces a `imdb.mat` file which contains information about the path of images and the ground truth bounding boxes. Try modifying `cnn_setup_imdb.m` to make sure such information of your dataset goes into `imdb.mat`. 
