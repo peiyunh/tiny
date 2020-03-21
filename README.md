@@ -64,9 +64,9 @@ Here is a command you can run to reproduce our detection results on the world's 
 ```
 
 The demo script will start by downloading an off-the-shelf ResNet101-based model, if it does not find one. Models based on other architecture are also available below:
-- [ResNet101](https://www.cs.cmu.edu/~peiyunh/tiny/hr_res101.mat)
-- [ResNet50](https://www.cs.cmu.edu/~peiyunh/tiny/hr_res50.mat)
-- [VGG16](https://www.cs.cmu.edu/~peiyunh/tiny/hr_vgg16.mat)
+- [ResNet101](https://drive.google.com/file/d/1YO8zTXGCACRZvHDxtW8dEZL7CE8HVFJ8/view?usp=sharing)
+- [ResNet50](https://drive.google.com/file/d/1RFcSglvtasctXJQI1BS3laENXNvP8mwl/view?usp=sharing)
+- [VGG16](https://drive.google.com/file/d/1cOm-AiZFulruQpb9gRmFlRhsdL9bXJZZ/view?usp=sharing)
 
 ## Training 
 To train a ResNet101-based Tiny Face Detector, run following command in MATLAB: 
